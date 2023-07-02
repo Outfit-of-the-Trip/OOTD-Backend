@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const LoginService = require('../../service/userService/LoginService')
+const RegisterService = require('../../service/userService/RegisterService')
 
 
 router.get('/login', (req, res, next) => {
@@ -27,3 +28,29 @@ router.post('/login', (req, res, next) => {
     })
 });
 module.exports = router;
+
+router.get('/logout', (req, res, next) => {
+    /*
+    res.clearCookie("user");
+    res.redirect("/")
+    */
+   res.send('logout')
+});
+
+
+router.get('/register', (req, res, next) => {
+    /*
+    return res.status(200).render('user/register', {auth : req.auth});
+    */
+   res.send('registerpage')
+});
+router.post('/register', function(req, res, next){
+
+    const registerInfo = req.body; 
+    const RegisterResult = RegisterService.doRegister(registerInfo);
+    
+    RegisterResult.then((signup)=>{
+        if(signup) return res.send("SUCCESS");
+        else return res.send("ID");
+    })
+});

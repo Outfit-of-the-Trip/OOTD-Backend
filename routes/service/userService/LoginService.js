@@ -7,9 +7,8 @@ exports.doLogin = async function(data){
     const key = config.SECRET_KEY;
     const loginID = data.userId
     const loginPW = data.userPassword
+    param = [data.userId, data.userPassword]
     
-    console.log(loginID)
-    console.log(loginPW)
     var sql = 'SELECT * FROM USER WHERE userId = ?';
     var res = null
 
