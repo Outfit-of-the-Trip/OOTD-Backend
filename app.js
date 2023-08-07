@@ -7,6 +7,6 @@ const config = require("./config/config")
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use('/', routes);
+app.use('/api', routes);
 
 app.listen(config.PORT, () => {console.log(`Listening on port ${config.PORT}`);});

@@ -1,10 +1,12 @@
 const express = require('express')
 const router = express.Router()
 
-const mainController = require('./controller/mainController/main')
-const userController = require('./controller/userController/user')
+const userController = require('./controller/user')
+const friendController = require('./controller/friend')
+const closetController = require('./controller/closet')
 
-router.use('/', mainController)
-router.use('/user', userController)
+router.use('/users', userController)
+router.use('/friends', friendController)
+router.use('/closet', closetController)
 
 module.exports = router
