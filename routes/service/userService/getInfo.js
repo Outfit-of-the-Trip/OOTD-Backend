@@ -1,7 +1,9 @@
-const conn = require('../../../config/db')
-const config = require('../../../config/config')
-const jwt = require('jsonwebtoken');
+const promisePool = require("../../../config/db")
 
 exports.getInfo = async (userID) => {
-    return true;
+    console.log(userID)
+    const q = "SELECT * FROM USER WHERE usrId = ?";
+    const [rows, fields] = await promisePool.query(q, [userID]);
+    
+    return rows[0];
 }

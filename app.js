@@ -9,4 +9,4 @@ app.use(bodyParser.json());
 
 app.use('/api', routes);
 
-app.listen(config.PORT, () => {console.log(`Listening on port ${config.PORT}`);});
+app.listen(config.PORT, () => {console.log(`[+] Listening on port ${config.PORT}`);});
