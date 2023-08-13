@@ -8,7 +8,7 @@ const TravelController = require('./controller/travel')
 
 router.use('/users', userController)
 router.use('/friends', friendController)
-router.use('/travel', friendController)
+router.use('/travel', TravelController)
 //router.use('/closet', closetController)
 
 module.exports = router
