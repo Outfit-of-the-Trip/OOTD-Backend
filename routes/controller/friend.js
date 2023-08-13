@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+
 const getMyFriends = require('../service/friendService/getMyFriends')
 const getFriendRequests = require('../service/friendService/getFriendRequests')
 const getFriendAccept = require('../service/friendService/getFriendAccept')
@@ -35,7 +36,7 @@ router.post('/addFriedns', async (req, res, next) => {
     return res.send(await addFriend.addFriend(req.body));
 });
 
-router.delete('/friends.info', async (req, res, next) => {
+router.delete('/deleteFriend', async (req, res, next) => {
     return res.send(await deleteFriend.deleteFriend(req.body));
 });
 
