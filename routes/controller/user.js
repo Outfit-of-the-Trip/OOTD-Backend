@@ -4,15 +4,15 @@ const getUserInfo = require('../service/userService/getUserInfo')
 const setUserInfo = require('../service/userService/setUserInfo')
 const updateUserInfo = require('../service/userService/updateUserInfo')
 
-router.get('/user.info', async (req, res, next) => {
-    return res.send(JSON.stringify(await getUserInfo.getUserInfo(req.query.userID)));
+router.get('/getUserInfo', async (req, res, next) => {
+    return res.json(await getUserInfo.getUserInfo(req.query.userId));
 });
 
-router.post('/user.info', async (req, res, next) => {
+router.post('/setUserInfo', async (req, res, next) => {
     return res.send(JSON.stringify(await setUserInfo.setUserInfo(req.body)));
 });
 
-router.put('/user.info', async (req, res, next) => {
+router.patch('/updateUserInfo', async (req, res, next) => {
     return res.send(JSON.stringify(await updateUserInfo.updateUserInfo(req.body)));
 });
 
