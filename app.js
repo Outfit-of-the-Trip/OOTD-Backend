@@ -3,9 +3,13 @@ const routes = require('./routes');
 const app = express();
 const bodyParser = require("body-parser");
 const config = require("./config/config")
+const cors = require("cors");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cors({
+    origin: '*',
+}));
 
 app.use('/api', routes);
 
