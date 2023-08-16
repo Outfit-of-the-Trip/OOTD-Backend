@@ -32,7 +32,7 @@ router.get('/searchFriends', async (req, res, next) => {
     });
 });
 
-router.post('/addFriedns', async (req, res, next) => {
+router.post('/addFriends', async (req, res, next) => {
     return res.send(await addFriend.addFriend(req.body));
 });
 
