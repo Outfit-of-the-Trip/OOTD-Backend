@@ -36,7 +36,7 @@ router.post('/addFriends', async (req, res, next) => {
     return res.send(await addFriend.addFriend(req.body));
 });
 
-router.delete('/deleteFriend', async (req, res, next) => {
+router.post('/deleteFriend', async (req, res, next) => {
     return res.send(await deleteFriend.deleteFriend(req.body));
 });
 
