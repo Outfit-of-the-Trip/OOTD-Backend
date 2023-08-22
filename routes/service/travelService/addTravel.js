@@ -4,7 +4,7 @@ exports.addTravel = async (userData) => {
     const data = [userData.usrId, userData.date, userData.friends]
     const q = "INSERT INTO TRAVEL (usrId, travlDate, travlFriends) values (?, ?, ?)";
     try{
-        const [rows, fields] = await promisePool.query(q, data);
+        const [row, fields] = await promisePool.query(q, data);
         return {"success": true}
     }
     catch{
