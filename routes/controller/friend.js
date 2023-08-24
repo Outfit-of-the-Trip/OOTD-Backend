@@ -9,35 +9,27 @@ const addFriend = require('../service/friendService/addFriend')
 const deleteFriend = require('../service/friendService/deleteFriend')
 
 router.get('/myFriends', async (req, res, next) => {
-    return res.json({ 
-        myFriends : await getMyFriends.getMyFriends(req.query.userId) 
-    });
+    return res.json(await getMyFriends.getMyFriends(req.query.userId) );
 });
 
 router.get('/myRequest', async (req, res, next) => {
-    return res.json({ 
-        reqFriends : await getFriendRequests.getFriendRequests(req.query.userId) 
-    });
+    return res.json(await getFriendRequests.getFriendRequests(req.query.userId) );
 });
 
 router.get('/myResponse', async (req, res, next) => {
-    return res.json({
-        resFriends : await getFriendAccept.getFriendAccept(req.query.userId)
-    });
+    return res.json(await getFriendAccept.getFriendAccept(req.query.userId));
 });
 
 router.get('/searchFriends', async (req, res, next) => {
-    return res.json({
-        searchRes : await findFriend.findFriend(req.query.userId)
-    });
+    return res.json(await findFriend.findFriend(req.query.userId));
 });
 
 router.post('/addFriends', async (req, res, next) => {
-    return res.send(await addFriend.addFriend(req.body));
+    return res.json(await addFriend.addFriend(req.body));
 });
 
 router.post('/deleteFriend', async (req, res, next) => {
-    return res.send(await deleteFriend.deleteFriend(req.body));
+    return res.json(await deleteFriend.deleteFriend(req.body));
 });
 
 module.exports = router;

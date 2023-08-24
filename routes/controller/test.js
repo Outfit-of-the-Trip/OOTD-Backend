@@ -12,11 +12,11 @@ router.get('/getUserTable', async (req, res, next) => {
 });
 
 router.get('/getFriendsTable', async (req, res, next) => {
-    return res.send(JSON.stringify(await getFriendsTable.getFriendsTable()));
+    return res.json(await getFriendsTable.getFriendsTable());
 });
 
 router.get('/getTravelTable', async (req, res, next) => {
-    return res.send(JSON.stringify(await getTravelTable.getTravelTable()));
+    return res.json(await getTravelTable.getTravelTable());
 });
 
 module.exports = router;
