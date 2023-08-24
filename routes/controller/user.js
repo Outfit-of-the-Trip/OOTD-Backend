@@ -9,11 +9,11 @@ router.get('/getUserInfo', async (req, res, next) => {
 });
 
 router.post('/setUserInfo', async (req, res, next) => {
-    return res.send(JSON.stringify(await setUserInfo.setUserInfo(req.body)));
+    return res.json(await setUserInfo.setUserInfo(req.body));
 });
 
 router.patch('/updateUserInfo', async (req, res, next) => {
-    return res.send(JSON.stringify(await updateUserInfo.updateUserInfo(req.body)));
+    return res.json(await updateUserInfo.updateUserInfo(req.body));
 });
 
 module.exports = router;
