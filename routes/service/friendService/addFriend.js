@@ -17,7 +17,7 @@ exports.addFriend = async (body) => {
         else{
             const updateQuery = "UPDATE FRIENDS SET areWeFriend=1 WHERE fromUsrId = ? AND toUsrId = ?"
             const data2 = [body.responseUserId, body.requestUserId]
-            const [rows] = await promisePool.query(q, data2);
+            const [rows] = await promisePool.query(updateQuery, data2);
             return {"msg": "Friend Accept SUCCESS"}
         }
     }
