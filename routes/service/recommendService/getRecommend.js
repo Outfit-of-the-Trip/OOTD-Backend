@@ -57,13 +57,11 @@ exports.getRecommend = async (data) => {
         "category": category
     }
 
-    console.log(sendData)
-
     const recommendData = await recAlgorithm(sendData)
 
 
 
     const q = "SELECT * FROM USER";
     const [rows, fields] = await promisePool.query(q);
-    return data;
+    return sendData;
 }
