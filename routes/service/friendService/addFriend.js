@@ -1,11 +1,11 @@
 const promisePool = require("../../../config/db")
 
 exports.addFriend = async (body) => {
-    const q = "SELECT areWeFriend FROM FRIENDS WHERE fromUsrId = ? AND toUsrId = ?"
+    const q = "SELECT areWeFriend FROM FRIEND WHERE fromUsrId = ? AND toUsrId = ?"
 
     const data = [body.reqUser, body.resUser]
 
-    try{
+    // try{
         const [rows] = await promisePool.query(q, data);
         if(!rows.length){
             const q1 = "INSERT INTO FRIEND (toUsrId, fromUsrId, areWeFriend) values (?, ?, ?), (?, ?, ?)"
@@ -19,8 +19,8 @@ exports.addFriend = async (body) => {
             await promisePool.query(updateQuery, data2);
             return {"msg": "Friend Accept SUCCESS"}
         }
-    }
-    catch{
-        return {"success": false}
-    }
+    // }
+    // catch{
+    //     return {"success": false}
+    // }
 }
