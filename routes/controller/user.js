@@ -12,7 +12,7 @@ router.post('/setUserInfo', async (req, res, next) => {
     return res.json(await setUserInfo.setUserInfo(req.body));
 });
 
-router.patch('/updateUserInfo', async (req, res, next) => {
+router.post('/updateUserInfo', async (req, res, next) => {
     return res.json(await updateUserInfo.updateUserInfo(req.body));
 });
 
