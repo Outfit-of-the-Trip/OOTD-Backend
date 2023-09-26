@@ -6,7 +6,6 @@ const getFriendsTable = require('../service/testService/getFriendsTable')
 const getTravelTable = require('../service/testService/getTravelTable')
 
 
-
 router.get('/getUserTable', async (req, res, next) => {
     return res.json(await getUserTable.getUserTable());
 });
