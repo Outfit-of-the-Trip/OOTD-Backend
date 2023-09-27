@@ -1,25 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer'); 
-const fs = require('fs');
-const path = require("path")
+const multer = require('multer');
 
 const uploadClosetImage = require('../service/closetService/uploadClosetImage')
 
-var storage  = multer.diskStorage({ 
-    destination(req, file, cb) {
-        cb(null, '/upload/');
-    },
-    filename(req, file, cb) {
-        var extension = path.extname(file.originalname);
-        cb(null, path.basename(file.originalname.split(".")[0])+"-"+Date.now()+extension);
-    },
-});
-var uploadFile = multer({ storage: storage }); 
+const upload = multer({ dest: 'uploads/', limits: { fileSize: 5 * 1024 * 1024 } });
 
 
 router.get('/uploadClosetImage', async (req, res, next) => {
-    return res.json(await uploadClosetImage.uploadClosetImage(req.body));
+    return res.sendfile('./upload.html');
+});
+
+router.post('/uploadClosetImage', upload.single('img'), async (req, res, next) => {
+    return res.send(await uploadClosetImage.uploadClosetImage(req));
 });
 
 module.exports = router;

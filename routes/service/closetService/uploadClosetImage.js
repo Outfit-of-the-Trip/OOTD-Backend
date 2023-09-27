@@ -1,28 +1,13 @@
 const promisePool = require("../../../config/db")
-const request = require('request');
+const path = require("path")
+const fs = require('fs');
 
 exports.uploadClosetImage = async (data) => {
 
-    const apiUrl = 'http://127.0.0.1:5000/upload'; 
-    const filePath = data.filePath; 
+    var imgName = data.file.filename;
+    var filePath = path.join(__dirname, '../../../uploads', imgName);
+    var imageBuffer = fs.readFileSync(filePath);
+    var encode = Buffer.from(imageBuffer).toString('base64');
 
-    const formData = {
-        [fileField]: fs.createReadStream(filePath)
-    };
-
-    // request.post({
-    //     url: apiUrl,
-    //     formData: formData
-    // }, (error, response, body) => {
-    //     if (error) {
-    //         console.error('파일 업로드 오류:', error);
-    //         return;
-    //     }
-
-    //     console.log('파일 업로드 응답:', body);
-
-    // });
-
-    // const [myFriends, fields] = await promisePool.query(q, [userId, userId]);
-    // return myFriends;
+    return encode
 }
