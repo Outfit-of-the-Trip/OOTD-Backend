@@ -13,7 +13,7 @@ router.get('/uploadClosetImage', async (req, res, next) => {
 });
 
 router.post('/uploadClosetImage', upload.single('img'), async (req, res, next) => {
-    return res.send(await uploadClosetImage.uploadClosetImage(req));
+    return res.send(await uploadClosetImage.uploadClosetImage(req.body));
 });
 
 router.post('/getClosetData',  async (req, res, next) => {
