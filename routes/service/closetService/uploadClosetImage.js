@@ -10,7 +10,7 @@ exports.uploadClosetImage = async (data) => {
     var imageBuffer = fs.readFileSync(filePath);
     var encode = Buffer.from(imageBuffer).toString('base64');
 
-    axios.post("http://34.172.180.212:5543/predict/camera",{
+    axios.post("http://35.188.152.122:5543/predict/camera",{
         base64_image: encode
     })
     .then(async res => {
