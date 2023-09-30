@@ -6,6 +6,8 @@
 </head>
 <body>
     <form action="/api/closet/uploadClosetImage" method="POST" enctype="multipart/form-data">
+        <input type="text" name="usrId"/><br><br>
+        <input type="text" name="clothesId"/><br><br>
         <input type="file" name="img" />
         <button type="submit">Upload</button>
     </form>

@@ -1,5 +1,6 @@
 const promisePool = require("../../../config/db")
-const path = require("path")
+const path = require("path");
+const axios = require('axios');
 const fs = require('fs');
 
 exports.uploadClosetImage = async (data) => {
@@ -9,5 +10,19 @@ exports.uploadClosetImage = async (data) => {
     var imageBuffer = fs.readFileSync(filePath);
     var encode = Buffer.from(imageBuffer).toString('base64');
 
-    return encode
+    axios.post("http://34.172.180.212:5543/predict/camera",{
+        base64_image: encode
+    })
+    .then(async res => {
+        const param = [data.body.usrId, data.body.clothesId, encode, res.data.label, res.data.color]
+        try{
+            const q = 'INSERT INTO CLOSET (usrId, clothesId, clothesImg, clothesTag, clothesColor) values (?, ?, ?, ?, ?)';
+            await promisePool.query(q, param);
+            return {"success": true}
+        }catch{
+            return {"success": false}
+        }
+    })
+
+
 }
