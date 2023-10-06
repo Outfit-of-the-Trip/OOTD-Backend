@@ -23,45 +23,46 @@ const spawn = require('child_process').spawn;
       }));  
       return transformedFriends;
   }
-  const getReason = (reason) => {
-      if(reason == "배낭여행" || reason == "레져여행" || reason == "캠핑" || reason == "엠티") return 0;
-      else if(reason == "호캉스" || reason == "핫플레이스" || reason == "인생샷") return 1;
-      else return 2;
-  }
+  // const getReason = (reason) => {
+  //   if(reason == "배낭여행" || reason == "레져여행" || reason == "캠핑" || reason == "엠티") return 0;
+  //   else if(reason == "호캉스" || reason == "핫플레이스" || reason == "인생샷") return 1;
+  //   else return 2;
+  // }
 
 
-exports.getRecommend = async (data) => {
-    
-    const userId = data.userId
-    const date = data.date
-    const season = getSeason(data.date[0])
-    const gender = data.gender
-    const friend = getFriend(data.friend)
-    const place = data.place
-    const reason = getReason(data.reason)
-    const category = data.category
+  exports.getRecommend = (data) => {
 
-    const sendData = {
-      "userId": userId,
-      "date_lst": date,
-      "season": season,
-      "gender": gender,
-      "friend": friend,
-      "place": place,
-      "reason": reason,
-      "category": category
-    }
-    console.log(sendData)
+    return new Promise((resolve, reject) => {
 
-    // const result_02 = spawn('python3', ['routes/service/recommendService/recommend.py', date, season, gender, reason, category]);
-    // result_02.stdout.on('data', (result)=>{
-    //   console.log(result.toString());
-    // });
-    // result_02.stderr.on('data', (data) => {
-    //   console.error("Error: " + data.toString());
-    // });
+        const userId = data.userId;
+        const date = data.date;
+        const season = getSeason(data.date[0]);
+        const gender = data.gender;
+        const friend = getFriend(data.friend);
+        const place = data.place;
+        const reason = data.reason;
+        const category = data.category;
 
-    const q = "SELECT * FROM USER";
-    const [rows, fields] = await promisePool.query(q);
-    return sendData;
-}
+
+        const pythonProcess = spawn('python3', ['routes/service/recommendService/recommend.py', userId, date, season, gender, reason, category]);
+        
+        let resultData = '';
+
+        pythonProcess.stdout.on('data', (result) => {
+          resultData += result.toString(); 
+        });
+
+        pythonProcess.stderr.on('data', (data) => {
+            console.error("Error: " + data.toString());
+        });
+
+        pythonProcess.on('close', (code) => {
+            if (code === 0) {
+                resolve(resultData);
+            } else {
+                reject(new Error(`Python script exited with code ${code}`));
+            }
+        });
+    });
+};
+
