@@ -9,6 +9,7 @@ exports.uploadClosetImage = async (data) => {
         base64_image: data.img
     })
     .then(async res => {
+
         const param = [data.usrId, data.clothesId, data.img, res.data.label, res.data.color]
         try{
             const q = 'INSERT INTO CLOSET (usrId, clothesId, clothesImg, clothesTag, clothesColor) values (?, ?, ?, ?, ?)';
