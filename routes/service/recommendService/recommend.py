@@ -32,10 +32,37 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
     date = date.replace("[","")
     date = date.replace("]","")
     date = date.replace("'","")
-    trend_outer=['blazer','cardigan']
-    trend_top=['shirt','shirt']
-    trend_outer_col=['black','white','beige']
-    trend_top_col=['blue','white','beige']
+    trend_outer_before=[]
+    trend_top=[]
+    trend_outer_col=[]
+    trend_top_col=[]
+
+    qtrend_outer=f"SELECT crawlClothes FROM CRAWL_DATA where crawlClothesCategory='outer' and crawlCategory='{category}' GROUP BY crawlCategory,crawlClothesCategory,crawlClothes ORDER BY SUM(crawlCount) DESC LIMIT 2;"
+    qtrend_top=f"SELECT crawlClothes FROM CRAWL_DATA where crawlClothesCategory='top' and crawlCategory='{category}' GROUP BY crawlCategory,crawlClothesCategory,crawlClothes ORDER BY SUM(crawlCount) DESC LIMIT 2;"
+    qtrend_outer_col=f"SELECT crawlColor FROM CRAWL_DATA where crawlClothesCategory='outer' and crawlCategory='{category}' GROUP BY crawlCategory,crawlClothesCategory,crawlColor ORDER BY SUM(crawlCount) DESC LIMIT 3;"
+    qtrend_top_col=f"SELECT crawlColor FROM CRAWL_DATA where crawlClothesCategory='top' and crawlCategory='{category}' GROUP BY crawlCategory,crawlClothesCategory,crawlColor ORDER BY SUM(crawlCount) DESC LIMIT 3;"
+    if conn.is_connected():
+      cursor.execute(qtrend_outer)
+      trend_outer = cursor.fetchall()
+      cursor.execute(qtrend_outer_col)
+      trend_outer_col = cursor.fetchall()
+      cursor.execute(qtrend_top)
+      trend_top = cursor.fetchall()
+      cursor.execute(qtrend_top_col)
+      trend_top_col = cursor.fetchall()
+    rem=["(",")",",","'"]
+    for r in rem:
+      for i in range(2):
+        trend_outer[i] = str(trend_outer[i]).replace(r,"")
+    for r in rem:
+      for i in range(3):
+        trend_outer_col[i] = str(trend_outer_col[i]).replace(r,"")
+    for r in rem:
+      for i in range(2):
+        trend_top[i] = str(trend_top[i]).replace(r,"")
+    for r in rem:
+      for i in range(3):
+        trend_top_col[i] = str(trend_top_col[i]).replace(r,"")
 
     user_input_filter=[season,gender] #계절,성별,who(x, 시밀러룩,커플룩(0,1,2)), 상대방 outter,top("beige_coat, white_long_tee")
     user_input_score=[reason,category,trend_outer,trend_top]
@@ -432,14 +459,15 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
     top_closet=[]
     bottom_closet=[]
     shoes_closet=[]
-    test="'None'"
+    test="'https://postfiles.pstatic.net/MjAyMzEwMDFfNjIg/MDAxNjk2MTYzMzcxMjc2.oVup_aS64ZNVcQnNnkmev1v1hFJSFyXTAv243hyRa1kg.QM5VNyfuGV_gZCTzZUp8SrP2XzMbjnruGZjW9zkU3Eog.PNG.pineapple7358/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7_2023-10-01_%EC%98%A4%ED%9B%84_9.29.27.png?type=w966'"
+
     for i in range(3):
       if season ==1:
         outer_closet=["'None'","'None'","'None'","'None'","'None'","'None'","'None'","'None'","'None'"]
       else:
         outercloset=fin_outer[i]
         outercolcloset=outer_col[i]
-        query=f"select closetSeq from CLOSET where clothesTag='{outercloset}' and clothesColor='{outercolcloset}' and usrId='{usr_Id}' limit 3;"
+        query=f"select clothesImg from CLOSET where clothesTag='{outercloset}' and clothesColor='{outercolcloset}' and usrId='{usr_Id}' limit 3;"
         cursor.execute(query)
         exampleimg = cursor.fetchall()
         if len(exampleimg)==0:
@@ -447,22 +475,22 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
           outer_closet.append(test)
           outer_closet.append(test)
         elif len(exampleimg)==1:
-          outer_closet.append("'"+str(exampleimg[0])[1:-2]+"'")
+          outer_closet.append(str(exampleimg[0])[1:-1])
           outer_closet.append(test)
           outer_closet.append(test)
         elif len(exampleimg)==2:
-          outer_closet.append("'"+str(exampleimg[0])[1:-2]+"'")
-          outer_closet.append("'"+str(exampleimg[1])[1:-2]+"'")
+          outer_closet.append(str(exampleimg[0])[1:-1])
+          outer_closet.append(str(exampleimg[1])[1:-1])
           outer_closet.append(test)
         elif len(exampleimg)==3:
-          outer_closet.append("'"+str(exampleimg[0])[1:-2]+"'")
-          outer_closet.append("'"+str(exampleimg[1])[1:-2]+"'")
-          outer_closet.append("'"+str(exampleimg[2])[1:-2]+"'")
+          outer_closet.append(str(exampleimg[0])[1:-1])
+          outer_closet.append(str(exampleimg[1])[1:-1])
+          outer_closet.append(str(exampleimg[2])[1:-1])
 
     for i in range(3):
       topcloset=fin_top[i]
       topcolcloset=top_col[i]
-      query=f"select closetSeq from CLOSET where clothesTag='{topcloset}' and clothesColor='{topcolcloset}' and usrId='{usr_Id}' limit 3;"
+      query=f"select clothesImg from CLOSET where clothesTag='{topcloset}' and clothesColor='{topcolcloset}' and usrId='{usr_Id}' limit 3;"
       cursor.execute(query)
       exampleimg = cursor.fetchall()
 
@@ -471,17 +499,17 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
         top_closet.append(test)
         top_closet.append(test)
       elif len(exampleimg)==1:
-        top_closet.append("'"+str(exampleimg[0])[1:-2]+"'")
+        top_closet.append(str(exampleimg[0])[1:-1])
         top_closet.append(test)
         top_closet.append(test)
       elif len(exampleimg)==2:
-        top_closet.append("'"+str(exampleimg[0])[1:-2]+"'")
-        top_closet.append("'"+str(exampleimg[1])[1:-2]+"'")
+        top_closet.append(str(exampleimg[0])[1:-1])
+        top_closet.append(str(exampleimg[1])[1:-1])
         top_closet.append(test)
       elif len(exampleimg)==3:
-        top_closet.append("'"+str(exampleimg[0])[1:-2]+"'")
-        top_closet.append("'"+str(exampleimg[1])[1:-2]+"'")
-        top_closet.append("'"+str(exampleimg[2])[1:-2]+"'")
+        top_closet.append(str(exampleimg[0])[1:-1])
+        top_closet.append(str(exampleimg[1])[1:-1])
+        top_closet.append(str(exampleimg[2])[1:-1])
 
 
       for i in range(3):
@@ -492,7 +520,7 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
         else:
           bottomcloset=fin_bottom[i]
           bottomcolcloset=bottom_col[i]
-          query=f"select closetSeq from CLOSET where clothesTag='{bottomcloset}' and clothesColor='{bottomcolcloset}' and usrId='{usr_Id}' limit 3;"
+          query=f"select clothesImg from CLOSET where clothesTag='{bottomcloset}' and clothesColor='{bottomcolcloset}' and usrId='{usr_Id}' limit 3;"
           cursor.execute(query)
           exampleimg = cursor.fetchall()
           if len(exampleimg)==0:
@@ -500,22 +528,22 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
             bottom_closet.append(test)
             bottom_closet.append(test)
           elif len(exampleimg)==1:
-            bottom_closet.append("'"+str(exampleimg[0])[1:-2]+"'")
+            bottom_closet.append(str(exampleimg[0])[1:-1])
             bottom_closet.append(test)
             bottom_closet.append(test)
           elif len(exampleimg)==2:
-            bottom_closet.append("'"+str(exampleimg[0])[1:-2]+"'")
-            bottom_closet.append("'"+str(exampleimg[1])[1:-2]+"'")
+            bottom_closet.append(str(exampleimg[0])[1:-1])
+            bottom_closet.append(str(exampleimg[1])[1:-1])
             bottom_closet.append(test)
           elif len(exampleimg)==3:
-            bottom_closet.append("'"+str(exampleimg[0])[1:-2]+"'")
-            bottom_closet.append("'"+str(exampleimg[1])[1:-2]+"'")
-            bottom_closet.append("'"+str(exampleimg[2])[1:-2]+"'")
+            bottom_closet.append(str(exampleimg[0])[1:-1])
+            bottom_closet.append(str(exampleimg[1])[1:-1])
+            bottom_closet.append(str(exampleimg[2])[1:-1])
 
       for i in range(3):
         shoescloset=fin_shoes[i]
         shoescolcloset=shoes_col[i]
-        query=f"select closetSeq from CLOSET where clothesTag='{shoescloset}' and clothesColor='{shoescolcloset}' and usrId='{usr_Id}' limit 3;"
+        query=f"select clothesImg from CLOSET where clothesTag='{shoescloset}' and clothesColor='{shoescolcloset}' and usrId='{usr_Id}' limit 3;"
         cursor.execute(query)
         exampleimg = cursor.fetchall()
         if len(exampleimg)==0:
@@ -523,17 +551,18 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
           shoes_closet.append(test)
           shoes_closet.append(test)
         elif len(exampleimg)==1:
-          shoes_closet.append("'"+str(exampleimg[0])[1:-2]+"'")
+          shoes_closet.append(str(exampleimg[0])[1:-2])
           shoes_closet.append(test)
           shoes_closet.append(test)
         elif len(exampleimg)==2:
-          shoes_closet.append("'"+str(exampleimg[0])[1:-2]+"'")
-          shoes_closet.append("'"+str(exampleimg[1])[1:-2]+"'")
+          shoes_closet.append(str(exampleimg[0])[1:-2])
+          shoes_closet.append(str(exampleimg[1])[1:-2])
           shoes_closet.append(test)
         elif len(exampleimg)==3:
-          shoes_closet.append("'"+str(exampleimg[0])[1:-2]+"'")
-          shoes_closet.append("'"+str(exampleimg[1])[1:-2]+"'")
-          shoes_closet.append("'"+str(exampleimg[2])[1:-2]+"'")
+          shoes_closet.append(str(exampleimg[0])[1:-2])
+          shoes_closet.append(str(exampleimg[1])[1:-2])
+          shoes_closet.append(str(exampleimg[2])[1:-2])
+
     if d==0:
       fin_return_new=[]
     else:
@@ -946,3 +975,4 @@ if __name__ == '__main__':
 
   print(encoded_string)
   # print(func)
+

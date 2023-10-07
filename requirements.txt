@@ -1,0 +1,4 @@
+beautifulsoup4==4.12.2
+dnspython==2.3.0
+mysql-connector-python
+
