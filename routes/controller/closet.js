@@ -6,8 +6,6 @@ const getClosetData = require('../service/closetService/getClosetData')
 
 
 router.post('/uploadClosetImage', async (req, res, next) => {
-
-    console.log(await uploadClosetImage.uploadClosetImage(req.body))
     return res.send(await uploadClosetImage.uploadClosetImage(req.body));
 });
 

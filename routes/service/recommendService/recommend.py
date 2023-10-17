@@ -1,11 +1,13 @@
-def recomm_func(usr_Id, date_lst, season, gender, reason,category):
-  import json
+def recomm_func(usr_Id, date_lst, season, gender,reason,category):
+  fin_return_mew=[]
   fin_return=[]
   outer = ["windbreaker jacket","blazer","denim jacket","leather jacket","cardigan","coat","puffer"]
   top = ["tank top","tee shirt", "long sleeve shirt","shirt", "polo shirt", "sweat shirt", "hoodie sweat shirt", "knit sweater", "dress"]
   bottom =["jeans","slacks","short pants","sweat pants","skirt"]
   shoes = ["sandals","sneakers", "dress shoes"]
-
+  datelist_outer_lst=[[0,1,2],[1,2,0],[2,0,1]]
+  datelist_top_lst=[[0,1,0],[0,0,1],[1,0,0]]
+  datecollist_lst=[[0,1,2],[1,2,0],[2,0,1]]
   import mysql.connector
   db_config = {
       'host': '34.64.159.185',
@@ -26,12 +28,26 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
   if reason=='호캉스' or reason=='핫플레이스' or reason=='인생샷':reason=1
   if reason=='출장' or reason=='워크숍' or reason=='학회':reason=2
   fin_return=""
+  date_origin=[]
   date_lst = date_lst.split(',')
+  for k in range(len(date_lst)):
+    date_lst[k] = date_lst[k].replace("[","")
+    date_lst[k] = date_lst[k].replace("]","")
+    date_lst[k] = date_lst[k].replace("'","")
+    date_origin.append(date_lst[k])
+  date_lst_origin=date_lst
+  if len(date_lst)>3:
+    date_lst = date_lst[:3]
   for d in range(len(date_lst)):
     date = date_lst[d]
     date = date.replace("[","")
     date = date.replace("]","")
     date = date.replace("'","")
+    for i in range(3):
+      if d==i:
+        datelist_outer=datelist_outer_lst[i]
+        datelist_top=datelist_top_lst[i]
+        datecollist=datecollist_lst[i]
     trend_outer_before=[]
     trend_top=[]
     trend_outer_col=[]
@@ -63,10 +79,20 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
     for r in rem:
       for i in range(3):
         trend_top_col[i] = str(trend_top_col[i]).replace(r,"")
+    outer_col=[]
+    top_col=[]
+    """
+    for i in range(3):
+      outer_col.append(trend_outer_col[i])
+      top_col.append(trend_top_col[i])
+  """
+
 
     user_input_filter=[season,gender] #계절,성별,who(x, 시밀러룩,커플룩(0,1,2)), 상대방 outter,top("beige_coat, white_long_tee")
     user_input_score=[reason,category,trend_outer,trend_top]
-
+    tmp_fin_outer=[]
+    tmp_fin_top=[]
+    tmp_fin_bottom=[]
     outer_today = outer
     top_today = top
     bottom_today = bottom
@@ -172,103 +198,141 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
 
     outer_sorted = sorted(set(outer_todayscore), reverse=True)
     outer_sorted = outer_sorted[:3]
-    #print(outer_sorted)
-    #print(outer_todayscore)
     for i  in range(3):
       for j in range(7):
         if outer_sorted[i] == outer_todayscore[j]:
-          fin_outer.append(outer_today[j])
-    fin_outer = fin_outer[:3]
+          tmp_fin_outer.append(outer[j])
+    tmp_fin_outer = tmp_fin_outer[:3]
 
-    top_finscore=top_todayscore
-    bottom_finscore=bottom_todayscore
-    shoes_finscore=shoes_todayscore
+    tfin_outer=[]
+    tfin_top=[]
+    tfin_bottom=[]
+    #for k in range(len(date_lst)-1): 
+    for ls in datelist_outer:
+      tfin_outer.append(tmp_fin_outer[ls])
+    for ls in datecollist:
+      outer_col.append(trend_outer_col[ls])   
+
     #마지막socre상하의매치 : 우선순위 : (outer ->) top -> bottom , shoes: 운동화 default
     if user_input_filter[0]!=1: #outer있으면
       shoes_todayscore[0]-=100
       shoes_todayscore[1]+=10
       for i in range(3):
-        if fin_outer[i] == "windbreak jacket":
-          top_finscore[1]+=10
-          top_finscore[2]+=10
-          bottom_finscore[4]-=10
-        if fin_outer[i] == "blazer":
-          top_finscore[1]+=10
-          top_finscore[2]+=10
-          top_finscore[3]+=10
-          bottom_finscore[2]-=30
-          bottom_finscore[3]-=30
-        if fin_outer[i] == "denim jacket":
-          top_finscore[1]+=10
-          top_finscore[2]+=10
-          top_finscore[5]+=10
-          top_finscore[6]+=10
-          top_finscore[8]+=10
-        if fin_outer[i] == "leather jacket":
-          top_finscore[1]+=10
-          top_finscore[2]+=10
-          top_finscore[4]+=10
-          top_finscore[5]+=10
-          top_finscore[6]+=10
-          bottom_finscore[2]-=30
-          bottom_finscore[3]-=30
-        if fin_outer[i] == "coat":
-          top_finscore[3]+=10
-          top_finscore[4]+=10
-          top_finscore[5]+=10
-          top_finscore[6]+=15
-          top_finscore[7]+=15
-        if fin_outer[i] == "puffer":
-          top_finscore[5]+=15
-          top_finscore[6]+=10
-          top_finscore[7]+=10
-        #print("t",top_finscore)
-        fin_top.append(top_today[top_finscore.index(max(top_finscore))])
-        top_finscore=top_todayscore
-        bottom_finscore=bottom_todayscore
-        shoes_finscore=shoes_todayscore
+        if tfin_outer[i] == "windbreak jacket":
+          top_todayscore[1]+=10
+          top_todayscore[2]+=10
+          bottom_todayscore[4]-=10
+        if tfin_outer[i] == "blazer":
+          top_todayscore[1]+=10
+          top_todayscore[2]+=10
+          top_todayscore[3]+=10
+          bottom_todayscore[2]-=30
+          bottom_todayscore[3]-=30
+        if tfin_outer[i] == "denim jacket":
+          top_todayscore[1]+=10
+          top_todayscore[2]+=10
+          top_todayscore[5]+=10
+          top_todayscore[6]+=10
+          top_todayscore[8]+=10
+        if tfin_outer[i] == "leather jacket":
+          top_todayscore[1]+=10
+          top_todayscore[2]+=10
+          top_todayscore[4]+=10
+          top_todayscore[5]+=10
+          top_todayscore[6]+=10
+          bottom_todayscore[2]-=30
+          bottom_todayscore[3]-=30
+        if tfin_outer[i] == "coat":
+          top_todayscore[3]+=10
+          top_todayscore[4]+=10
+          top_todayscore[5]+=10
+          top_todayscore[6]+=15
+          top_todayscore[7]+=15
+        if tfin_outer[i] == "puffer":
+          top_todayscore[5]+=15
+          top_todayscore[6]+=10
+          top_todayscore[7]+=10
+        #수정
 
 
-    else:
-      fin_outer=[]
-      top_sorted = sorted(set(top_todayscore), reverse=True)
-      top_sorted = top_sorted[:3]
-      for i  in range(3):
-        for j in range(9):
-          if top_sorted[i] == top_todayscore[j]:
-            #print(j)
-            fin_top.append(top_today[j])
-      #print(fin_top)
-      fin_top = fin_top[:3]
-      #print("t",top_finscore)
 
+    top_sorted = sorted(set(top_todayscore), reverse=True)
+    top_sorted = top_sorted[:3]
+    for i  in range(3):
+      for j in range(9):
+        if top_sorted[i] == top_todayscore[j]:
+          tmp_fin_top.append(top[j])
+    tmp_fin_top = tmp_fin_top[:3]
+
+    for ls in datelist_top:
+      tfin_top.append(tmp_fin_top[ls])
+    for ls in datecollist:
+      top_col.append(trend_top_col[ls])
 
 
 
     for i in range(3):
-      top_finscore=top_todayscore
-      bottom_finscore=bottom_todayscore
-      shoes_finscore=shoes_todayscore
-      if fin_top[i] == "shirt":
-        bottom_finscore[3]-=100
-        shoes_finscore[0]-=100
-      if fin_top[i] == "knit sweater":
-        bottom_finscore[3]-=100
-      if fin_top[i] == "dress":
-        fin_bottom.append("")
-        fin_shoes.append(shoes_today[shoes_finscore.index(max(shoes_finscore))])
+      top_todayscore=top_todayscore
+      bottom_todayscore=bottom_todayscore
+      shoes_todayscore=shoes_todayscore
+      if tfin_top[i] == "shirt":
+        bottom_todayscore[3]-=100
+        shoes_todayscore[0]-=100
+      if tfin_top[i] == "knit sweater":
+        bottom_todayscore[3]-=100
+      if tfin_top[i] == "dress":
+        tmp_fin_bottom.append("")
+        fin_shoes.append(shoes_today[shoes_todayscore.index(max(shoes_todayscore))])
         continue
-      #print("b",bottom_finscore)
-      #print("s",shoes_finscore)
 
-      fin_bottom.append(bottom_today[bottom_finscore.index(max(bottom_finscore))])
-      fin_shoes.append(shoes_today[shoes_finscore.index(max(shoes_finscore))])
+      #fin_bottom.append(bottom_today[bottom_todayscore.index(max(bottom_todayscore))])
+      fin_shoes.append(shoes_today[shoes_todayscore.index(max(shoes_todayscore))])
+    tmp_fin_bottom=[]
+    tmp_fin_shoes=[]
+    bottom_sorted = sorted(set(bottom_todayscore), reverse=True)
+    bottom_sorted = bottom_sorted[:3]
+    for i  in range(3):
+      for j in range(5):
+        if bottom_sorted[i] == bottom_todayscore[j]:
+          tmp_fin_bottom.append(bottom[j])
+    tmp_fin_bottom = tmp_fin_bottom[:2]
+    tmp_fin_bottom.append(tmp_fin_bottom[0])
 
-    outer_col = trend_outer_col
-    top_col=trend_top_col
+    #color
+    for i  in range(3):
+      for j in range(7):
+        if outer_sorted[i] == outer_todayscore[j]:
+          tmp_fin_outer.append(outer[j])
+    tmp_fin_outer = tmp_fin_outer[:3]
+    top_sorted = sorted(set(top_todayscore), reverse=True)
+    top_sorted = top_sorted[:3]
+    for i  in range(3):
+      for j in range(9):
+        if top_sorted[i] == top_todayscore[j]:
+          tmp_fin_top.append(top[j])
+    tmp_fin_top = tmp_fin_top[:3]
+
+    p=0
+    datelist_outer=[[0,1,2],[1,2,0],[2,0,1]]
+    datelist_top=[[0,1,0],[0,0,1],[1,0,0]]
+    datecollist=[[0,1,2],[1,2,0],[2,0,1]]
+    for k in range(len(date_lst)): 
+      for ls in datelist_outer[k]:
+        fin_outer.append(tfin_outer[ls])
+      for ls in datecollist[k]:
+        outer_col.append(trend_outer_col[ls])
+      for ls in datelist_top[k]:
+        fin_top.append(tfin_top[ls])
+      for ls in datecollist[k]:
+        top_col.append(trend_top_col[ls])
+      for i in range(3):
+        fin_bottom.append(tmp_fin_bottom[i])
+      for i in range(3):
+        fin_shoes.append(fin_shoes[i])
+        
     #color_bottom
     bottom_col=[]
-    for i in range(3):
+    for i in range((len(date_lst))*3):
       if fin_bottom[i] == 'jeans':
         bottom_col.append('blue')
       if fin_bottom[i] == 'slacks':
@@ -295,18 +359,23 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
           bottom_col.append('black')
       if fin_top[i] == "dress":
         bottom_col.insert(i," ")
+
     #color_shoes
     shoes_col=[]
-    for i in range(3):
-      if fin_shoes[i]=='sandals':
-        shoes_col.append('black')
-      if fin_shoes[i] =='dress shoes':
-        shoes_col.append('black')
-      if fin_shoes[i] =='sneakers':
-        if fin_bottom[i]=='slacks':
+    for da in range(len(date_lst)):
+      for i in range(3):
+        if fin_shoes[i]=='sandals':
           shoes_col.append('black')
-        else:
-          shoes_col.append('white')
+        if fin_shoes[i] =='dress shoes':
+          shoes_col.append('black')
+        if fin_shoes[i] =='sneakers':
+          if fin_bottom[i]=='slacks':
+            shoes_col.append('black')
+          else:
+            shoes_col.append('white')
+
+
+
     import requests
     from bs4 import BeautifulSoup
     outer_adver_img=[]
@@ -333,8 +402,6 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
                 url = f"https://www.musinsa.com/app/goods/{url_n}"
                 outer_adver_img.append(f"https:{image_url}")
                 outer_adver_url.append(f"{url}")
-        else:
-            print("musinsa.com에 접속할 수 없습니다.")
 
     top_adver_img=[]
     top_adver_url=[]
@@ -354,12 +421,10 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
               url = f"https://www.musinsa.com/app/goods/{url_n}"
               top_adver_img.append(f"https:{image_url}")
               top_adver_url.append(f"{url}")
-      else:
-          print("musinsa.com에 접속할 수 없습니다.")
     bottom_adver_img=[]
     bottom_adver_url=[]
 
-    for i in range(3):
+    for i in range(3*len(date_lst)):
       if fin_top[i]=='dress':
         bottom_adver_img.append('None')
         bottom_adver_img.append('None')
@@ -383,12 +448,10 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
                 url = f"https://www.musinsa.com/app/goods/{url_n}"
                 bottom_adver_img.append(f"https:{image_url}")
                 bottom_adver_url.append(f"{url}")
-        else:
-            print("musinsa.com에 접속할 수 없습니다.")
 
     shoes_adver_img=[]
     shoes_adver_url=[]
-    for i in range(3):
+    for i in range(3*len(date_lst)):
       if fin_shoes[i]=='dress shoes': search_query = "검정 로퍼"
       else: search_query = f"{shoes_col[i]} {fin_shoes[i]}"
       search_url = f"https://www.musinsa.com/search/musinsa/integration?q={search_query}"
@@ -405,8 +468,6 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
               url = f"https://www.musinsa.com/app/goods/{url_n}"
               shoes_adver_img.append(f"https:{image_url}")
               shoes_adver_url.append(f"{url}")
-      else:
-          print("musinsa.com에 접속할 수 없습니다.")
 
     exampleImg_outer=[]
     exampleImg_top=[]
@@ -416,7 +477,7 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
     if season ==1:
         exampleImg_outer=["00'None'000","00'None'000","00'None'000"]
     else:
-      for i in range(3):
+      for i in range(3*len(date_lst)):
         exampleClothes=fin_outer[i]
         exampleColor=outer_col[i]
         query=f"select exampleImage from EXAMPLE where exampleClothes='{exampleClothes}' and exampleColor='{exampleColor}' LIMIT 3;"
@@ -424,7 +485,7 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
         exampleimg = cursor.fetchall()
         exampleImg_outer.append(exampleimg)
 
-    for i in range(3):
+    for i in range(3*len(date_lst)):
       exampleClothes=fin_top[i]
       exampleColor=top_col[i]
       query=f"select exampleImage from EXAMPLE where exampleClothes='{exampleClothes}' and exampleColor='{exampleColor}' LIMIT 3;"
@@ -432,7 +493,7 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
       exampleimg = cursor.fetchall()
       exampleImg_top.append(exampleimg)
 
-    for i in range(3):
+    for i in range(3*len(date_lst)):
       if fin_top[i]=='dress':
         exampleImg_bottom.append("00'None'000")
       else:
@@ -470,22 +531,23 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
         query=f"select clothesImg from CLOSET where clothesTag='{outercloset}' and clothesColor='{outercolcloset}' and usrId='{usr_Id}' limit 3;"
         cursor.execute(query)
         exampleimg = cursor.fetchall()
+
         if len(exampleimg)==0:
           outer_closet.append(test)
           outer_closet.append(test)
           outer_closet.append(test)
         elif len(exampleimg)==1:
-          outer_closet.append(str(exampleimg[0])[1:-1])
+          outer_closet.append(str(exampleimg[0])[1:-2])
           outer_closet.append(test)
           outer_closet.append(test)
         elif len(exampleimg)==2:
-          outer_closet.append(str(exampleimg[0])[1:-1])
-          outer_closet.append(str(exampleimg[1])[1:-1])
+          outer_closet.append(str(exampleimg[0])[1:-2])
+          outer_closet.append(str(exampleimg[1])[1:-2])
           outer_closet.append(test)
         elif len(exampleimg)==3:
-          outer_closet.append(str(exampleimg[0])[1:-1])
-          outer_closet.append(str(exampleimg[1])[1:-1])
-          outer_closet.append(str(exampleimg[2])[1:-1])
+          outer_closet.append(str(exampleimg[0])[1:-2])
+          outer_closet.append(str(exampleimg[1])[1:-2])
+          outer_closet.append(str(exampleimg[2])[1:-2])
 
     for i in range(3):
       topcloset=fin_top[i]
@@ -499,17 +561,17 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
         top_closet.append(test)
         top_closet.append(test)
       elif len(exampleimg)==1:
-        top_closet.append(str(exampleimg[0])[1:-1])
+        top_closet.append(str(exampleimg[0])[1:-2])
         top_closet.append(test)
         top_closet.append(test)
       elif len(exampleimg)==2:
-        top_closet.append(str(exampleimg[0])[1:-1])
-        top_closet.append(str(exampleimg[1])[1:-1])
+        top_closet.append(str(exampleimg[0])[1:-2])
+        top_closet.append(str(exampleimg[1])[1:-2])
         top_closet.append(test)
       elif len(exampleimg)==3:
-        top_closet.append(str(exampleimg[0])[1:-1])
-        top_closet.append(str(exampleimg[1])[1:-1])
-        top_closet.append(str(exampleimg[2])[1:-1])
+        top_closet.append(str(exampleimg[0])[1:-2])
+        top_closet.append(str(exampleimg[1])[1:-2])
+        top_closet.append(str(exampleimg[2])[1:-2])
 
 
       for i in range(3):
@@ -528,17 +590,17 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
             bottom_closet.append(test)
             bottom_closet.append(test)
           elif len(exampleimg)==1:
-            bottom_closet.append(str(exampleimg[0])[1:-1])
+            bottom_closet.append(str(exampleimg[0])[1:-2])
             bottom_closet.append(test)
             bottom_closet.append(test)
           elif len(exampleimg)==2:
-            bottom_closet.append(str(exampleimg[0])[1:-1])
-            bottom_closet.append(str(exampleimg[1])[1:-1])
+            bottom_closet.append(str(exampleimg[0])[1:-2])
+            bottom_closet.append(str(exampleimg[1])[1:-2])
             bottom_closet.append(test)
           elif len(exampleimg)==3:
-            bottom_closet.append(str(exampleimg[0])[1:-1])
-            bottom_closet.append(str(exampleimg[1])[1:-1])
-            bottom_closet.append(str(exampleimg[2])[1:-1])
+            bottom_closet.append(str(exampleimg[0])[1:-2])
+            bottom_closet.append(str(exampleimg[1])[1:-2])
+            bottom_closet.append(str(exampleimg[2])[1:-2])
 
       for i in range(3):
         shoescloset=fin_shoes[i]
@@ -567,6 +629,7 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
       fin_return_new=[]
     else:
       fin_return+=","
+    
     fin_return_new=f"""
       ^
           'date': '{date}',
@@ -946,33 +1009,29 @@ def recomm_func(usr_Id, date_lst, season, gender, reason,category):
     fin_return_new = fin_return_new.replace("^","{")
     fin_return_new = fin_return_new.replace("#","}")
     fin_return_new = fin_return_new.replace("'",'"')
-    #if len(date_lst)!=d:
-    fin_return+=fin_return_new
-  #return [fin_outer,fin_top, fin_bottom, fin_shoes,outer_col,top_col,bottom_col,shoes_col,outer_adver_img,outer_adver_url,top_adver_img, top_adver_url,bottom_adver_img,bottom_adver_url,shoes_adver_img,shoes_adver_url,exampleImg_outer,exampleImg_top, exampleImg_bottom, exampleImg_shoes,closet_outer,closet_top,closet_bottom,closet_shoes]
-  fin_return = "["+fin_return+"]"
-  # print(fin_return)
-  # # JSON 형식으로 파싱
-  # parsed_data = json.loads(fin_return)
-  # # 다시 JSON 형식으로 인코딩
-  # json_data = json.dumps(parsed_data, indent=4)
-  cursor.close()
-  return fin_return
+    fin_return_mew.append(fin_return_new)
+    fin_return = fin_return+fin_return_new
 
+
+  if len(date_lst_origin)>3:
+    for i in range(3,len(date_lst_origin)):
+      tmp=f'\n          "date": "{date_origin[i]}"'
+      fin_return=fin_return+","+"{"+tmp+fin_return_mew[i-3][39:]
+  fin_return = "["+fin_return+"\n]"
+
+  return fin_return
 
 import sys
 import base64
+import json
 
 if __name__ == '__main__':
-  #python3 recommend.py admin [ '2023-10-10', '2023-10-11'] 가을 M 배낭여행 핫플레이스
   func=recomm_func(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])
-  # func=recomm_func('박성훈',"['2023-10-10']",'가을','M',2,'바닷가')
-
+  parsed_data = json.loads(func)
+  json_data = json.dumps(parsed_data, indent=4)
   bytes_data = func.encode('utf-8')
-
   encoded_data = base64.b64encode(bytes_data)
-
   encoded_string = encoded_data.decode('utf-8')
 
   print(encoded_string)
-  # print(func)
 

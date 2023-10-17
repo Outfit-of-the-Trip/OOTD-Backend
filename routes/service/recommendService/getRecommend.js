@@ -16,12 +16,6 @@ const spawn = require('child_process').spawn;
       }
   }
 
-  // const getReason = (reason) => {
-  //   if(reason == "배낭여행" || reason == "레져여행" || reason == "캠핑" || reason == "엠티") return 0;
-  //   else if(reason == "호캉스" || reason == "핫플레이스" || reason == "인생샷") return 1;
-  //   else return 2;
-  // }
-
 
   exports.getRecommend = (data) => {
 
@@ -31,32 +25,36 @@ const spawn = require('child_process').spawn;
         const date = data.date;
         const season = getSeason(data.date[0]);
         const gender = data.gender;
-        const place = data.place;
         const reason = data.reason;
         const category = data.category;
 
-        console.log(reason)
-
-
-        const pythonProcess = spawn('python3', ['routes/service/recommendService/recommend.py', userId, date, season, gender, reason, category]);
+        try{
+          const pythonProcess = spawn('python3', ['routes/service/recommendService/recommend.py', userId, date, season, gender, reason, category]);
         
-        let resultData = '';
+          let resultData = '';
+  
+          pythonProcess.stdout.on('data', (result) => {
+            resultData += result.toString(); 
+          });
+  
+          pythonProcess.stderr.on('data', (data) => {
+              console.error("Error: " + data.toString());
+          });
+  
+          pythonProcess.on('close', (code) => {
+              if (code === 0) {
+                  resolve(resultData);
+              } else {
+                  reject(new Error(`Python script exited with code ${code}`));
+              }
+          });
 
-        pythonProcess.stdout.on('data', (result) => {
-          resultData += result.toString(); 
-        });
+        }
+        catch{
+          return {'success': false}
+        }
 
-        pythonProcess.stderr.on('data', (data) => {
-            console.error("Error: " + data.toString());
-        });
 
-        pythonProcess.on('close', (code) => {
-            if (code === 0) {
-                resolve(resultData);
-            } else {
-                reject(new Error(`Python script exited with code ${code}`));
-            }
-        });
     });
 };
 
